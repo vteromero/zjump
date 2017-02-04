@@ -1,3 +1,9 @@
+/**
+    Copyright (c) 2017 Vicente Romero. All rights reserved.
+    Licensed under the MIT License.
+    See LICENSE file in the project root for full license information.
+*/
+
 #ifndef BLOCK_READER_H_
 #define BLOCK_READER_H_
 
