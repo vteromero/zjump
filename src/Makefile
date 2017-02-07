@@ -31,5 +31,5 @@ $(TARGET): $(OBJS) $(TARGET).o
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	$(RM) *.o *~ $(TARGET)
+	$(RM) *.o $(TARGET)
 
