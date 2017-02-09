@@ -116,6 +116,31 @@ static ZjumpErrorCode ValidateOptions(int argc, char **argv, int last_opt, ExecC
     return ZJUMP_NO_ERROR;
 }
 
+static bool FileExists(const char* file_name) {
+    FILE *file = fopen(file_name, "rb");
+    if(file == nullptr) {
+        return false;
+    } else {
+        fclose(file);
+        return true;
+    }
+}
+
+static ZjumpErrorCode ValidateOutput(const ExecConfig& config) {
+    if(config.out_file_name.empty()) {
+        return ZJUMP_NO_ERROR;
+    }
+
+    const char *out_file_name = config.out_file_name.c_str();
+
+    if(FileExists(out_file_name)) {
+        fprintf(stderr, "Output file %s already exists.\n", out_file_name);
+        return ZJUMP_ERROR_FILE;
+    }
+
+    return ZJUMP_NO_ERROR;
+}
+
 static ZjumpErrorCode OpenFiles(ExecConfig* config) {
     if(!config->in_file_name.empty()) {
         const char *in_file_name = config->in_file_name.c_str();
@@ -155,6 +180,11 @@ int main(int argc, char **argv) {
     if(config.help_opt) {
         Usage(argv[0]);
         return ZJUMP_NO_ERROR;
+    }
+
+    ret_code = ValidateOutput(config);
+    if(ret_code != ZJUMP_NO_ERROR) {
+        return ret_code;
     }
 
     ret_code = OpenFiles(&config);
