@@ -18,6 +18,7 @@ struct ExecConfig {
     bool help_opt;
     bool decompress_opt;
     bool stdout_opt;
+    bool force_opt;
     string in_file_name;
     string out_file_name;
     FILE *in_file;
@@ -27,6 +28,7 @@ struct ExecConfig {
         help_opt        = false;
         decompress_opt  = false;
         stdout_opt      = false;
+        force_opt       = false;
         in_file         = stdin;
         out_file        = stdout;
     }
@@ -54,6 +56,7 @@ static void Usage(const char *name)
 "\n"
 "  -c, --stdout         Write on standard output\n"
 "  -d, --decompress     Decompress FILE\n"
+"  -f, --force          Force to overwrite the output file\n"
 "  -h, --help           Output this help and exit\n"
 "\n"
 "If no FILE is given, zjump compresses or decompresses\n"
@@ -87,6 +90,8 @@ static int ParseOptions(int argc, char **argv, ExecConfig* config) {
             config->stdout_opt = true;
         } else if((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--decompress") == 0)) {
             config->decompress_opt = true;
+        } else if((strcmp(argv[i], "-f") == 0) || (strcmp(argv[i], "--force") == 0)) {
+            config->force_opt = true;
         } else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
             config->help_opt = true;
         } else if(argv[i][0] == '-') {
@@ -127,6 +132,10 @@ static bool FileExists(const char* file_name) {
 }
 
 static ZjumpErrorCode ValidateOutput(const ExecConfig& config) {
+    if(config.force_opt) {
+        return ZJUMP_NO_ERROR;
+    }
+
     if(config.out_file_name.empty()) {
         return ZJUMP_NO_ERROR;
     }
