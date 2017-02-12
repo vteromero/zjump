@@ -19,6 +19,7 @@ struct ExecConfig {
     bool decompress_opt;
     bool stdout_opt;
     bool force_opt;
+    bool version_opt;
     string in_file_name;
     string out_file_name;
     FILE *in_file;
@@ -29,6 +30,7 @@ struct ExecConfig {
         decompress_opt  = false;
         stdout_opt      = false;
         force_opt       = false;
+        version_opt     = false;
         in_file         = stdin;
         out_file        = stdout;
     }
@@ -47,6 +49,13 @@ struct ExecConfig {
 static const char *kZjumpCompressedExt      = ".zjump";
 static const char *kZjumpDecompressedExt    = ".orig";
 
+static void DisplayVersionNumber() {
+    uint32_t major = (kZjumpVersion >> 16) & 0xFF;
+    uint32_t minor = (kZjumpVersion >> 8) & 0xFF;
+    uint32_t release = kZjumpVersion & 0xFF;
+    fprintf(stderr, "zjump %u.%u.%u\n", major, minor, release);
+}
+
 static void Usage(const char *name)
 {
     fprintf(stderr,
@@ -58,6 +67,7 @@ static void Usage(const char *name)
 "  -d, --decompress     Decompress FILE\n"
 "  -f, --force          Force to overwrite the output file\n"
 "  -h, --help           Output this help and exit\n"
+"  -V, --version        Display version number\n"
 "\n"
 "If no FILE is given, zjump compresses or decompresses\n"
 "from standard input to standard output."
@@ -94,6 +104,8 @@ static int ParseOptions(int argc, char **argv, ExecConfig* config) {
             config->force_opt = true;
         } else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
             config->help_opt = true;
+        } else if((strcmp(argv[i], "-V") == 0) || (strcmp(argv[i], "--version") == 0)) {
+            config->version_opt = true;
         } else if(argv[i][0] == '-') {
             fprintf(stderr, "Unrecognized option: '%s'\n", argv[i]);
         } else {
@@ -184,6 +196,11 @@ int main(int argc, char **argv) {
     int ret_code = ValidateOptions(argc, argv, last_opt, &config);
     if(ret_code != ZJUMP_NO_ERROR) {
         return ret_code;
+    }
+
+    if(config.version_opt) {
+        DisplayVersionNumber();
+        return ZJUMP_NO_ERROR;
     }
 
     if(config.help_opt) {
