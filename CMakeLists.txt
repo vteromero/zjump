@@ -8,9 +8,5 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall")
 
-file(GLOB SOURCES "src/*.cc")
-
-add_executable(zjump ${SOURCES})
-
-target_link_libraries(zjump divsufsort)
+add_subdirectory("src")
 
