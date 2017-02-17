@@ -33,7 +33,10 @@ a Debian-based system, it can be installed by typing `sudo apt-get install libdi
 
 You can build `zjump` by using CMake in this way:
 
-    $ mkdir build && cd build && cmake .. && make
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+    $ make
 
 This will create the binary program within the build directory.
 
