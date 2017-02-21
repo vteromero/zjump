@@ -7,7 +7,7 @@ it offers similar compression ratios to _gzip_ or _bzip2_ when compressing
 text data. However, the compression speed is slightly worse and the decompression
 speed is clearly improveable.
 
-Note that `zjump` is an __experimental__ data compressor and early versions
+Note that Zjump is an __experimental__ data compressor and early versions
 may not be compatible one another. That means that it is still __unsafe__ to
 use it in production environments.
 
@@ -23,9 +23,11 @@ performance and security.
 
 * The Gcc compiler.
 * One of these two build tools: gmake or CMake.
-* The [libdivsufsort](https://github.com/y-256/libdivsufsort) library. You can
-find it as a package within your Linux distribution. For instance, if you use
-a Debian-based system, it can be installed by typing `sudo apt-get install libdivsufsort-dev`.
+
+Zjump also depends on these open source projects:
+
+* [libdivsufsort](https://github.com/y-256/libdivsufsort)
+* [Google Test](https://github.com/google/googletest)
 
 ### Build
 
