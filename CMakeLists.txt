@@ -8,5 +8,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall")
 
-add_subdirectory("src")
+enable_testing()
+
+add_subdirectory(third-party/gtest)
+include_directories(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
+
+add_subdirectory(third-party/libdivsufsort)
+include_directories(${LIBDIVSUFSORT_INCLUDE_DIRS})
+
+add_subdirectory(src)
 
