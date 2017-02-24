@@ -31,8 +31,8 @@ typedef enum {
     ZJUMP_ERROR_RECONSTRUCTING_STREAM
 } ZjumpErrorCode;
 
-// Zjump version = (MAJOR << 16) | (MINOR << 8) | RELEASE
-static const uint32_t kZjumpVersion = 0x000001;
+// Zjump version = MAJOR*10000 + MINOR*100 + PATCH
+static const uint32_t kZjumpVersion = 100;
 
 static const size_t kBlockMaxExpandedStreamSize     = 65534;
 static const size_t kBlockMaxCompressedStreamSize   = 120000;

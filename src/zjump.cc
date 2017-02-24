@@ -50,10 +50,10 @@ static const char *kZjumpCompressedExt      = ".zjump";
 static const char *kZjumpDecompressedExt    = ".orig";
 
 static void DisplayVersionNumber() {
-    uint32_t major = (kZjumpVersion >> 16) & 0xFF;
-    uint32_t minor = (kZjumpVersion >> 8) & 0xFF;
-    uint32_t release = kZjumpVersion & 0xFF;
-    fprintf(stderr, "zjump %u.%u.%u\n", major, minor, release);
+    uint32_t major = kZjumpVersion / 10000;
+    uint32_t minor = (kZjumpVersion / 100) % 100;
+    uint32_t patch = kZjumpVersion % 100;
+    fprintf(stderr, "zjump %u.%u.%u\n", major, minor, patch);
 }
 
 static void Usage(const char *name)
