@@ -53,7 +53,8 @@ ZjumpErrorCode BlockCompressor::Compress(uint8_t* in,
         return result;
     }
 
-    Rle1(block_.jseq_stream, &block_.jseq_stream_size);
+    Rle1(block_.jseq_stream, block_.jseq_stream_size,
+         block_.jseq_stream, &block_.jseq_stream_size);
 
     result = CreateEncodingTable();
     if(result != ZJUMP_NO_ERROR) {
