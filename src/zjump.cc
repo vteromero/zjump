@@ -19,6 +19,7 @@ struct ExecConfig {
     bool decompress_opt;
     bool stdout_opt;
     bool force_opt;
+    bool keep_opt;
     bool version_opt;
     string in_file_name;
     string out_file_name;
@@ -30,6 +31,7 @@ struct ExecConfig {
         decompress_opt  = false;
         stdout_opt      = false;
         force_opt       = false;
+        keep_opt        = false;
         version_opt     = false;
         in_file         = stdin;
         out_file        = stdout;
@@ -66,6 +68,7 @@ static void Usage(const char *name)
 "  -c, --stdout         Write on standard output\n"
 "  -d, --decompress     Decompress FILE\n"
 "  -f, --force          Force to overwrite the output file\n"
+"  -k, --keep           Keep the input file (do not delete it)\n"
 "  -h, --help           Output this help and exit\n"
 "  -V, --version        Display version number\n"
 "\n"
@@ -102,6 +105,8 @@ static int ParseOptions(int argc, char **argv, ExecConfig* config) {
             config->decompress_opt = true;
         } else if((strcmp(argv[i], "-f") == 0) || (strcmp(argv[i], "--force") == 0)) {
             config->force_opt = true;
+        } else if((strcmp(argv[i], "-k") == 0) || (strcmp(argv[i], "--keep") == 0)) {
+            config->keep_opt = true;
         } else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
             config->help_opt = true;
         } else if((strcmp(argv[i], "-V") == 0) || (strcmp(argv[i], "--version") == 0)) {
@@ -188,6 +193,24 @@ static ZjumpErrorCode OpenFiles(ExecConfig* config) {
     return ZJUMP_NO_ERROR;
 }
 
+static ZjumpErrorCode RemoveInput(const ExecConfig& config) {
+    if(config.keep_opt) {
+        return ZJUMP_NO_ERROR;
+    }
+
+    if(config.in_file == stdin) {
+        return ZJUMP_NO_ERROR;
+    }
+
+    const char *in_file_name = config.in_file_name.c_str();
+    if(remove(in_file_name) != 0) {
+        perror(in_file_name);
+        return ZJUMP_ERROR_FILE;
+    }
+
+    return ZJUMP_NO_ERROR;
+}
+
 int main(int argc, char **argv) {
     ExecConfig config;
 
@@ -230,6 +253,11 @@ int main(int argc, char **argv) {
         if(ret_code != ZJUMP_NO_ERROR) {
             return ret_code;
         }
+    }
+
+    ret_code = RemoveInput(config);
+    if(ret_code != ZJUMP_NO_ERROR) {
+        return ret_code;
     }
 
     return ZJUMP_NO_ERROR;
