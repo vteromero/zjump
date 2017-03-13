@@ -1,11 +1,6 @@
-/**
-    Copyright (c) 2017 Vicente Romero. All rights reserved.
-    Licensed under the MIT License.
-    See LICENSE file in the project root for full license information.
-*/
-
 #include "gtest/gtest.h"
 
+#include "../constants.h"
 #include "../mem.h"
 #include "../rle.h"
 
@@ -28,7 +23,7 @@ TEST(Rle1Test, Rle1WithOnesOnly) {
     size_t data_size = 25;
     uint16_t data[data_size] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     const size_t expected_size = 4;
-    const uint16_t expected[expected_size] = {1, 2, 1, 2};
+    const uint16_t expected[expected_size] = {kRUNASymbol, kRUNBSymbol, kRUNASymbol, kRUNBSymbol};
 
     Rle1(data, data_size, data, &data_size);
 
@@ -48,8 +43,10 @@ TEST(Rle1Test, Rle1WithMixedData) {
     };
     const size_t expected_size = 30;
     const uint16_t expected[expected_size] = {
-         2,  1,  2,  1, 10,  5, 20,  1, 11,  2,  1,  3,  3,  5, 45,  2,  9,  1,  8, 22,
-        13,  1,  2,  2,  3,  1,  7,  9,  1,  1
+         kRUNBSymbol,  kRUNASymbol,  kRUNBSymbol,  kRUNASymbol, 10,  5, 20,  kRUNASymbol, 11,
+         kRUNBSymbol,  kRUNASymbol,  3,  3,  5, 45,  kRUNBSymbol,  9,  kRUNASymbol,  8, 22,
+        13,  kRUNASymbol,  kRUNBSymbol,  kRUNBSymbol,  3,  kRUNASymbol,  7,  9,  kRUNASymbol,
+         kRUNASymbol
     };
 
     Rle1(data, data_size, data, &data_size);
@@ -63,9 +60,9 @@ TEST(Rle1Test, Rle1WithMixedData) {
 
 TEST(Rle1Test, InverseRle1WithNoRle) {
     const size_t in_data_size = 10;
-    const uint16_t in_data[in_data_size] = {0, 3, 4, 5, 6, 7, 8, 9, 0, 3};
+    const uint16_t in_data[in_data_size] = {3, 4, 5, 6, 7, 8, 9, 3, 4, 5};
     const size_t expected_size = in_data_size;
-    const uint16_t expected[expected_size] = {0, 3, 4, 5, 6, 7, 8, 9, 0, 3};
+    const uint16_t expected[expected_size] = {3, 4, 5, 6, 7, 8, 9, 3, 4, 5};
     uint16_t *out_data = SecureAlloc<uint16_t>(expected_size);
     size_t out_data_size = 0;
 
@@ -82,7 +79,7 @@ TEST(Rle1Test, InverseRle1WithNoRle) {
 
 TEST(Rle1Test, InverseRle1WithRleOnly) {
     const size_t in_data_size = 4;
-    const uint16_t in_data[in_data_size] = {1, 2, 1, 2};
+    const uint16_t in_data[in_data_size] = {kRUNASymbol, kRUNBSymbol, kRUNASymbol, kRUNBSymbol};
     const size_t expected_size = 25;
     const uint16_t expected[expected_size] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     uint16_t *out_data = SecureAlloc<uint16_t>(expected_size);
@@ -102,8 +99,10 @@ TEST(Rle1Test, InverseRle1WithRleOnly) {
 TEST(Rle1Test, InverseRle1WithMixedData) {
     const size_t in_data_size = 30;
     const uint16_t in_data[in_data_size] = {
-         2,  1,  2,  1, 10,  5, 20,  1, 11,  2,  1,  3,  3,  5, 45,  2,  9,  1,  8, 22,
-        13,  1,  2,  2,  3,  1,  7,  9,  1,  1
+         kRUNBSymbol,  kRUNASymbol,  kRUNBSymbol,  kRUNASymbol, 10,  5, 20,  kRUNASymbol, 11,
+         kRUNBSymbol,  kRUNASymbol,  3,  3,  5, 45,  kRUNBSymbol,  9,  kRUNASymbol,  8, 22,
+        13,  kRUNASymbol,  kRUNBSymbol,  kRUNBSymbol,  3,  kRUNASymbol,  7,  9,  kRUNASymbol,
+         kRUNASymbol
     };
     const size_t expected_size = 60;
     const uint16_t expected[expected_size] = {
