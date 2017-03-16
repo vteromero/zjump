@@ -1,0 +1,16 @@
+language:
+    - cpp
+
+compiler:
+    - gcc
+
+os:
+    - linux
+
+script:
+    - mkdir builds
+    - cd builds
+    - cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+    - make
+    - make test
+
