@@ -160,9 +160,11 @@ static void SetCanonicalOrder(const size_t num_symbols,
 static void SetEncodedValues(const size_t num_symbols,
                              const uint8_t max_bit_length,
                              EncodedSymbol* enc_symbols) {
-    uint16_t bl_count[max_bit_length + 1] = {0};
+    uint16_t bl_count[max_bit_length + 1];
     uint16_t next_code[max_bit_length + 1];
     uint32_t code = 0;
+
+    fill_n(bl_count, max_bit_length + 1, 0);
 
     for(size_t i=0; i<num_symbols; ++i) {
         ++bl_count[enc_symbols[i].enc_bit_length];

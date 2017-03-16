@@ -10,7 +10,7 @@
 
 TEST(BitStreamWriterTest, AppendBitsInAZeroStream) {
     size_t data_size = 5;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x6B, 0x28, 0xFF, 0xFF, 0x00};
 
     BitStreamWriter writer(data, data_size);
@@ -41,7 +41,7 @@ TEST(BitStreamWriterTest, AppendBitsInANotZeroStream) {
 
 TEST(BitStreamWriterTest, AppendABigValue) {
     size_t data_size = 10;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x0, 0x0, 0x0};
 
     BitStreamWriter writer(data, data_size);
@@ -54,7 +54,7 @@ TEST(BitStreamWriterTest, AppendABigValue) {
 
 TEST(BitStreamWriterTest, WriteBitsInAZeroStream) {
     size_t data_size = 4;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0};
     uint8_t expected[data_size] = {0x65, 0xA4, 0x02, 0x00};
 
     BitStreamWriter writer(data, data_size);
@@ -86,7 +86,7 @@ TEST(BitStreamWriterTest, WriteBitsInANotZeroStream) {
 
 TEST(BitStreamWriterTest, WriteABigValue) {
     size_t data_size = 10;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x0, 0x0, 0x0};
 
     BitStreamWriter writer(data, data_size);
@@ -99,7 +99,7 @@ TEST(BitStreamWriterTest, WriteABigValue) {
 
 TEST(BitStreamWriterTest, WriteBitsAfterAppending) {
     size_t data_size = 4;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0};
     uint8_t expected[data_size] = {0x00, 0xFF, 0x00, 0x0};
 
     BitStreamWriter writer(data, data_size);
@@ -115,7 +115,7 @@ TEST(BitStreamWriterTest, WriteBitsAfterAppending) {
 
 TEST(BitStreamWriterTest, Get) {
     size_t data_size = 4;
-    uint8_t data[data_size] = {0};
+    uint8_t data[data_size] = {0, 0, 0, 0};
 
     BitStreamWriter writer(data, data_size);
     writer.Append(0x03, 8);
