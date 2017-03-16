@@ -1,4 +1,4 @@
-### Introduction
+## Zjump [![Build Status](https://travis-ci.org/vteromero/zjump.svg?branch=master)](https://travis-ci.org/vteromero/zjump)
 
 __Zjump__ is a lossless compression algorithm that compresses data by using
 several well-known compression techniques and some new ones (the exact used
