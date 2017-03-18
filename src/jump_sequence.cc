@@ -8,8 +8,9 @@
 
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
-#include "gap_array.h"
+#include "mem.h"
 
 using namespace std;
 
@@ -147,45 +148,85 @@ ZjumpErrorCode JumpSequenceTransform(uint8_t* stream,
     return ZJUMP_NO_ERROR;
 }
 
+static bool EnlargeStream(const uint8_t byte,
+                          const vector<uint16_t>& jseq_stream,
+                          const uint8_t* in_data,
+                          const size_t in_data_size,
+                          uint8_t* out_data,
+                          size_t* out_data_size) {
+    size_t jseq_stream_size = jseq_stream.size();
+    size_t n = 0;
+    size_t m = 0;
+
+    for(size_t i=0; i<jseq_stream_size; ++i) {
+        if(jseq_stream[i] == 0) {
+            continue;
+        }
+
+        size_t sz = jseq_stream[i] - 1u;
+        if((m + sz) > in_data_size) {
+            return false;
+        }
+
+        std::copy_n(in_data+m, sz, out_data+n);
+        n += sz;
+        m += sz;
+
+        out_data[n++] = byte;
+    }
+
+    size_t sz = in_data_size - m;
+    std::copy_n(in_data+m, sz, out_data+n);
+    n += sz;
+    m += sz;
+
+    *out_data_size = n;
+
+    return true;
+}
+
 ZjumpErrorCode InverseJumpSequenceTransform(const ZjumpBlock& block,
                                             uint8_t* stream,
                                             size_t* stream_size) {
-    const size_t expected_size = (block.jseq_stream_size - block.num_jseqs) + block.padding_literals_size;
-    GapArray gap_array(stream, expected_size);
+    vector<vector<uint16_t> > jseq_list(block.num_jseqs);
 
-    for(size_t i=0, j=0; i<block.num_jseqs; ++i) {
-        uint8_t byte = block.jseq_literals[i];
-        size_t idx = 0;
-
-        for(; j<block.jseq_stream_size; ++j) {
-            if(block.jseq_stream[j] == kEndOfSequenceSymbol) {
-                ++j;
+    for(size_t i=0, j=0; j<block.num_jseqs; ++j) {
+        for(; i<block.jseq_stream_size; ++i) {
+            if(block.jseq_stream[i] == kEndOfSequenceSymbol) {
+                ++i;
                 break;
             }
-
-            idx += block.jseq_stream[j];
-
-            if(! gap_array.Set(idx - 1, byte)) {
-                return ZJUMP_ERROR_RECONSTRUCTING_STREAM;
-            }
+            jseq_list[j].push_back(block.jseq_stream[i]);
         }
-
-        gap_array.Reconstruct();
     }
 
-    for(size_t i=0; i<block.padding_literals_size; ++i) {
-        if(! gap_array.Set(i, block.padding_literals[i])) {
+    uint8_t *in = SecureAlloc<uint8_t>(kBlockMaxExpandedStreamSize);
+    size_t in_size = 0;
+    uint8_t *out = SecureAlloc<uint8_t>(kBlockMaxExpandedStreamSize);
+    size_t out_size = 0;
+
+    std::copy_n(block.padding_literals, block.padding_literals_size, out);
+    out_size = block.padding_literals_size;
+
+    for(size_t i=block.num_jseqs; i-->0; ) {
+        uint8_t *p_aux = in;
+        in = out;
+        in_size = out_size;
+        out = p_aux;
+        out_size = 0;
+
+        if(!EnlargeStream(block.jseq_literals[i], jseq_list[i], in, in_size, out, &out_size)) {
+            SecureFree<uint8_t>(in);
+            SecureFree<uint8_t>(out);
             return ZJUMP_ERROR_RECONSTRUCTING_STREAM;
         }
     }
 
-    gap_array.Reconstruct();
+    std::copy_n(out, out_size, stream);
+    *stream_size = out_size;
 
-    if(gap_array.Size() > 0) {
-        return ZJUMP_ERROR_RECONSTRUCTING_STREAM;
-    }
-
-    *stream_size = expected_size;
+    SecureFree<uint8_t>(in);
+    SecureFree<uint8_t>(out);
 
     return ZJUMP_NO_ERROR;
 }
