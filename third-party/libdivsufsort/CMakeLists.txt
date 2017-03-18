@@ -10,21 +10,13 @@ ExternalProject_Add(libdivsufsort
     GIT_TAG           master
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=RELEASE
+        -DBUILD_SHARED_LIBS=OFF
     SOURCE_DIR        ${SOURCE_DIR}
     BINARY_DIR        ${BINARY_DIR}
     INSTALL_COMMAND   ""
 )
 
 set(LIBDIVSUFSORT_INCLUDE_DIRS ${BINARY_DIR}/include PARENT_SCOPE)
-set(LIBDIVSUFSORT_LIBS_DIR ${BINARY_DIR}/lib)
-
-add_library(divsufsort SHARED IMPORTED GLOBAL)
-set_target_properties(
-    divsufsort
-    PROPERTIES
-        IMPORTED_LINK_INTERFACE_LANGUAGES CXX
-        IMPORTED_LOCATION ${LIBDIVSUFSORT_LIBS_DIR}/libdivsufsort.so
-)
-
+set(LIBDIVSUFSORT_LIBS_DIR ${BINARY_DIR}/lib PARENT_SCOPE)
 set(LIBDIVSUFSORT_LIBS divsufsort PARENT_SCOPE)
 

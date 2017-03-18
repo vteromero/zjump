@@ -9,7 +9,7 @@
 #include "../bit_stream.h"
 
 TEST(BitStreamWriterTest, AppendBitsInAZeroStream) {
-    size_t data_size = 5;
+    const size_t data_size = 5;
     uint8_t data[data_size] = {0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x6B, 0x28, 0xFF, 0xFF, 0x00};
 
@@ -26,7 +26,7 @@ TEST(BitStreamWriterTest, AppendBitsInAZeroStream) {
 }
 
 TEST(BitStreamWriterTest, AppendBitsInANotZeroStream) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0x00, 0x01, 0x11, 0x11};
     uint8_t expected[data_size] = {0xFF, 0xFE, 0x00, 0x11};
 
@@ -40,7 +40,7 @@ TEST(BitStreamWriterTest, AppendBitsInANotZeroStream) {
 }
 
 TEST(BitStreamWriterTest, AppendABigValue) {
-    size_t data_size = 10;
+    const size_t data_size = 10;
     uint8_t data[data_size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x0, 0x0, 0x0};
 
@@ -53,7 +53,7 @@ TEST(BitStreamWriterTest, AppendABigValue) {
 }
 
 TEST(BitStreamWriterTest, WriteBitsInAZeroStream) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0, 0, 0, 0};
     uint8_t expected[data_size] = {0x65, 0xA4, 0x02, 0x00};
 
@@ -69,7 +69,7 @@ TEST(BitStreamWriterTest, WriteBitsInAZeroStream) {
 }
 
 TEST(BitStreamWriterTest, WriteBitsInANotZeroStream) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0x11, 0x11, 0x11, 0x11};
     uint8_t expected[data_size] = {0x1E, 0x00, 0xEE, 0x11};
 
@@ -85,7 +85,7 @@ TEST(BitStreamWriterTest, WriteBitsInANotZeroStream) {
 }
 
 TEST(BitStreamWriterTest, WriteABigValue) {
-    size_t data_size = 10;
+    const size_t data_size = 10;
     uint8_t data[data_size] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     uint8_t expected[data_size] = {0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x0, 0x0, 0x0};
 
@@ -98,7 +98,7 @@ TEST(BitStreamWriterTest, WriteABigValue) {
 }
 
 TEST(BitStreamWriterTest, WriteBitsAfterAppending) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0, 0, 0, 0};
     uint8_t expected[data_size] = {0x00, 0xFF, 0x00, 0x0};
 
@@ -114,7 +114,7 @@ TEST(BitStreamWriterTest, WriteBitsAfterAppending) {
 }
 
 TEST(BitStreamWriterTest, Get) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0, 0, 0, 0};
 
     BitStreamWriter writer(data, data_size);
@@ -131,7 +131,7 @@ TEST(BitStreamWriterTest, Get) {
 }
 
 TEST(BitStreamReaderTest, Read8BitValues) {
-    size_t data_size = 3;
+    const size_t data_size = 3;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11};
     uint8_t result;
     uint8_t num_bits;
@@ -160,7 +160,7 @@ TEST(BitStreamReaderTest, Read8BitValues) {
 }
 
 TEST(BitStreamReaderTest, Read16BitValues) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11, 0xAA};
     uint16_t result;
     uint8_t num_bits;
@@ -177,7 +177,7 @@ TEST(BitStreamReaderTest, Read16BitValues) {
 }
 
 TEST(BitStreamReaderTest, Read32BitValues) {
-    size_t data_size = 8;
+    const size_t data_size = 8;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11, 0xAA, 0xFF, 0x44, 0x67, 0x91};
     uint32_t result;
     uint8_t num_bits;
@@ -194,7 +194,7 @@ TEST(BitStreamReaderTest, Read32BitValues) {
 }
 
 TEST(BitStreamReaderTest, ReadNext8BitValues) {
-    size_t data_size = 3;
+    const size_t data_size = 3;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11};
     uint8_t result;
     uint8_t num_bits;
@@ -223,7 +223,7 @@ TEST(BitStreamReaderTest, ReadNext8BitValues) {
 }
 
 TEST(BitStreamReaderTest, ReadNext16BitValues) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11, 0xAA};
     uint16_t result;
     uint8_t num_bits;
@@ -240,7 +240,7 @@ TEST(BitStreamReaderTest, ReadNext16BitValues) {
 }
 
 TEST(BitStreamReaderTest, ReadNext32BitValues) {
-    size_t data_size = 8;
+    const size_t data_size = 8;
     uint8_t data[data_size] = {0xE5, 0xFF, 0x11, 0xAA, 0xFF, 0x44, 0x67, 0x91};
     uint32_t result;
     uint8_t num_bits;
@@ -257,7 +257,7 @@ TEST(BitStreamReaderTest, ReadNext32BitValues) {
 }
 
 TEST(BitStreamReaderTest, ReadNextAndReset) {
-    size_t data_size = 4;
+    const size_t data_size = 4;
     uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44};
     uint8_t result;
     uint8_t num_bits;
@@ -280,7 +280,7 @@ TEST(BitStreamReaderTest, ReadNextAndReset) {
 }
 
 TEST(BitStreamReaderTest, ReadABigValue) {
-    size_t data_size = 7;
+    const size_t data_size = 7;
     uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77};
     uint64_t result;
     uint8_t num_bits;
@@ -293,7 +293,7 @@ TEST(BitStreamReaderTest, ReadABigValue) {
 }
 
 TEST(BitStreamReaderTest, ReadABigValueWithAShift) {
-    size_t data_size = 8;
+    const size_t data_size = 8;
     uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
     uint64_t result;
     uint8_t num_bits;
@@ -306,7 +306,7 @@ TEST(BitStreamReaderTest, ReadABigValueWithAShift) {
 }
 
 TEST(BitStreamReaderTest, TryToReadAValueBiggerThanPossible) {
-    size_t data_size = 1;
+    const size_t data_size = 1;
     uint8_t data[data_size] = {0x11};
     uint64_t result;
     uint8_t num_bits;

@@ -23,15 +23,6 @@ ExternalProject_Add(googletest
 
 set(GTEST_INCLUDE_DIRS ${SOURCE_DIR}/googletest/include PARENT_SCOPE)
 set(GMOCK_INCLUDE_DIRS ${SOURCE_DIR}/googlemock/include PARENT_SCOPE)
-set(GMOCK_LIBS_DIR ${BINARY_DIR}/googlemock)
-
-add_library(gmock_main STATIC IMPORTED GLOBAL)
-set_target_properties(
-    gmock_main
-    PROPERTIES
-        IMPORTED_LINK_INTERFACE_LANGUAGES CXX
-        IMPORTED_LOCATION ${GMOCK_LIBS_DIR}/libgmock_main.a
-)
-
+set(GMOCK_LIBS_DIR ${BINARY_DIR}/googlemock PARENT_SCOPE)
 set(GTEST_LIBS gmock_main ${CMAKE_THREAD_LIBS_INIT} PARENT_SCOPE)
 
