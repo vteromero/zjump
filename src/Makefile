@@ -12,7 +12,6 @@ block_reader.cc \
 block_writer.cc \
 compress.cc \
 decompress.cc \
-gap_array.cc \
 huffman.cc \
 jump_sequence.cc \
 rle.cc
