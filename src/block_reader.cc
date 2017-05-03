@@ -199,7 +199,7 @@ ZjumpErrorCode BlockReader::ReadJSeqStream(BitStreamReader& reader) {
     block_->jseq_stream_size = 0;
 
     for(size_t i=0; i<block_->num_jseqs; ++i) {
-        uint16_t symbol=0, big_jump=0;
+        uint16_t symbol=0;
 
         do {
             ZjumpErrorCode code = ReadEncodedSymbol(reader, encoded_to_symbol_map, &symbol);
@@ -208,13 +208,6 @@ ZjumpErrorCode BlockReader::ReadJSeqStream(BitStreamReader& reader) {
             }
 
             block_->jseq_stream[block_->jseq_stream_size++] = symbol;
-
-            if(symbol == kBigJumpSymbol) {
-                if(reader.ReadNext(kBlockBigJumpFieldSize, &big_jump) != kBlockBigJumpFieldSize) {
-                    return ZJUMP_ERROR_FORMAT_STREAM_TOO_SHORT;
-                }
-                block_->jseq_stream[block_->jseq_stream_size++] = big_jump;
-            }
 
         } while(symbol != kEndOfSequenceSymbol);
     }

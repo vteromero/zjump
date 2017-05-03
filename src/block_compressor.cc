@@ -43,7 +43,8 @@ ZjumpErrorCode BlockCompressor::Compress(uint8_t* in,
         return result;
     }
 
-    result = JumpSequenceTransform(source_stream_, source_stream_size_, &block_);
+    Jst jst(source_stream_, source_stream_size_);
+    result = jst.Transform(&block_);
     if(result != ZJUMP_NO_ERROR) {
         return result;
     }
@@ -99,10 +100,7 @@ ZjumpErrorCode BlockCompressor::EncodeJSeqStream() {
     for(size_t i=0; i<block_.jseq_stream_size; ++i) {
         uint16_t jump = block_.jseq_stream[i];
 
-        if(jump > kMaxJumpSize) {
-            encoded[n++] = kBigJumpSymbol;
-            encoded[n++] = jump; //TODO: review
-        } else if(jump >= kMinJumpSize) {
+        if((jump >= kMinJumpSize) && (jump <= kMaxJumpSize)) {
             encoded[n++] = kMinJumpSymbol + (jump - kMinJumpSize);
         } else {
             encoded[n++] = jump;
@@ -122,10 +120,6 @@ ZjumpErrorCode BlockCompressor::CreateEncodingTable() {
 
     for(size_t i=0; i<block_.jseq_stream_size; ++i) {
         builder.AddSymbolFrequency(block_.jseq_stream[i], 1);
-
-        if(block_.jseq_stream[i] == kBigJumpSymbol) {
-            ++i; // skip next: big jump value
-        }
     }
 
     block_.huff_encoding = builder.Build();

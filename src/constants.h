@@ -34,29 +34,29 @@ typedef enum {
 // Zjump version = MAJOR*10000 + MINOR*100 + PATCH
 static const uint32_t kZjumpVersion = 100;
 
-static const size_t kBlockMaxExpandedStreamSize     = 65534;
-static const size_t kBlockMaxCompressedStreamSize   = 120000;
+static const size_t kBlockMaxExpandedStreamSize     = 200000;
+static const size_t kBlockMaxCompressedStreamSize   = 250000;
 
-static const size_t kBlockMaxNumJumpSequences = 1023;
+static const size_t kBlockMaxNumJumpSequences = 65535;
 
-static const uint16_t kEndOfSequenceSymbol  = 0;
-static const uint16_t kRUNASymbol           = 1;
-static const uint16_t kRUNBSymbol           = 2;
-static const uint16_t kMinJumpSymbol        = 3;
-static const uint16_t kMaxJumpSymbol        = 254;
-static const uint16_t kBigJumpSymbol        = 255;
+static const uint16_t kRUNASymbol           = 0;
+static const uint16_t kRUNBSymbol           = 1;
+static const uint16_t kMinJumpSymbol        = 2;
+static const uint16_t kMaxJumpSymbol        = 252;
+static const uint16_t kSkipChunkSymbol      = 253;
+static const uint16_t kEndOfSequenceSymbol  = 254;
+static const uint16_t kShrinkStreamSymbol   = 255;
 
 static const uint16_t kMinJumpSize = 2;
 static const uint16_t kMaxJumpSize = kMaxJumpSymbol - kMinJumpSymbol + kMinJumpSize;
 
-static const uint16_t kBlockMaxEncodingSymbols  = kBigJumpSymbol + 1;
+static const uint16_t kBlockMaxEncodingSymbols  = 256;
 static const uint8_t kBlockMaxEncodingBitLength = 15;
 
-static const uint8_t kBlockBwtPrimaryIndexFieldSize     = 16;
+static const uint8_t kBlockBwtPrimaryIndexFieldSize     = 24;
 static const uint8_t kBlockHuffmanBitLengthFieldSize    = 4;
-static const uint8_t kBlockNumLiteralsFieldSize         = 16;
-static const uint8_t kBlockNumJumpSequencesFieldSize    = 10;
-static const uint8_t kBlockBigJumpFieldSize             = 16;
+static const uint8_t kBlockNumLiteralsFieldSize         = 24;
+static const uint8_t kBlockNumJumpSequencesFieldSize    = 16;
 
 #endif //CONSTANTS_H_
 

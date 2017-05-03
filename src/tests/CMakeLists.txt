@@ -1,3 +1,5 @@
+include_directories(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
+
 file(GLOB SOURCES "*.cc")
 
 add_executable(zjump_unittesting ${SOURCES})

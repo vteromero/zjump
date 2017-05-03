@@ -1,3 +1,5 @@
+include_directories(${LIBDIVSUFSORT_INCLUDE_DIRS})
+
 file(GLOB SOURCES "*.cc")
 list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/zjump.cc")
 

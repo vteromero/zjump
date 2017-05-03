@@ -142,13 +142,6 @@ ZjumpErrorCode BlockWriter::WriteJumpSequences(BitStreamWriter* writer) {
         if(written != enc->enc_bit_length) {
             return ZJUMP_ERROR_BIT_WRITER;
         }
-
-        if(symbol == kBigJumpSymbol) {
-            written = writer->Append(block_.jseq_stream[++i], kBlockBigJumpFieldSize);
-            if(written != kBlockBigJumpFieldSize) {
-                return ZJUMP_ERROR_BIT_WRITER;
-            }
-        }
     }
 
     return ZJUMP_NO_ERROR;

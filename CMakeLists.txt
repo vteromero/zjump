@@ -9,7 +9,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall")
 enable_testing()
 
 add_subdirectory(third-party/gtest)
-include_directories(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
 add_library(gmock_main STATIC IMPORTED GLOBAL)
 set_target_properties(
     gmock_main
@@ -19,7 +18,6 @@ set_target_properties(
 )
 
 add_subdirectory(third-party/libdivsufsort)
-include_directories(${LIBDIVSUFSORT_INCLUDE_DIRS})
 add_library(divsufsort STATIC IMPORTED GLOBAL)
 set_target_properties(
     divsufsort

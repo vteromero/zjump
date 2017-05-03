@@ -44,7 +44,8 @@ ZjumpErrorCode BlockDecompressor::Decompress(uint8_t* in,
 
     DecodeJSeqStream();
 
-    ret_code = InverseJumpSequenceTransform(block_, out, out_size);
+    InverseJst inv_jst(block_);
+    ret_code = inv_jst.Transform(out, out_size);
     if(ret_code != ZJUMP_NO_ERROR) {
         return ret_code;
     }
@@ -83,9 +84,7 @@ void BlockDecompressor::DecodeJSeqStream() {
     for(size_t i=0; i<block_.jseq_stream_size; ++i) {
         uint16_t symbol = block_.jseq_stream[i];
 
-        if(symbol == kBigJumpSymbol) {
-            block_.jseq_stream[n++] = block_.jseq_stream[++i];
-        } else if(symbol >= kMinJumpSymbol) {
+        if((symbol >= kMinJumpSymbol) && (symbol <= kMaxJumpSymbol)) {
             block_.jseq_stream[n++] = kMinJumpSize + (symbol - kMinJumpSymbol);
         } else {
             block_.jseq_stream[n++] = symbol;
