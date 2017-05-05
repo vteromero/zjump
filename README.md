@@ -2,7 +2,7 @@
 
 __Zjump__ is a lossless compression algorithm that compresses data by using
 several well-known compression techniques and some new ones (the exact used
-algorithms will be explained in depth in the proper documentation). For now,
+algorithms will be explained in depth in a proper documentation). For now,
 it offers similar compression ratios to _gzip_ or _bzip2_ when compressing
 text data. However, the compression speed is slightly worse and the decompression
 speed is clearly improveable.
@@ -29,7 +29,7 @@ Zjump also depends on these open source projects:
 * [libdivsufsort](https://github.com/y-256/libdivsufsort)
 * [Google Test](https://github.com/google/googletest)
 
-### Build
+### Building
 
 #### CMake (recommended)
 
@@ -48,7 +48,7 @@ To build simply do:
 
     $ make
 
-### Run
+### Running
 
 Once you have built the program, you will be able to compress and decompress
 files through command line. These are some examples:
@@ -58,7 +58,7 @@ files through command line. These are some examples:
 
 To get more information on how to use it, just type `./zjump --help`
 
-### To-Do
+### To Do
 
 * Create documentation about the compression algorithms used.
 * Do some benchmarking comparing with the state-of-art in lossless compression.
