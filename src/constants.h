@@ -32,7 +32,7 @@ typedef enum {
 } ZjumpErrorCode;
 
 // Zjump version = MAJOR*10000 + MINOR*100 + PATCH
-static const uint32_t kZjumpVersion = 200;
+static const uint32_t kZjumpVersion = 201;
 
 static const size_t kBlockMaxExpandedStreamSize     = 200000;
 static const size_t kBlockMaxCompressedStreamSize   = 250000;

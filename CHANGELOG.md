@@ -1,3 +1,7 @@
+Version 0.2.1:
+--------------
+* fix: bug that results in a wrong HuffmanEncoding object.
+
 Version 0.2.0:
 --------------
 Major features:
