@@ -94,6 +94,34 @@ TEST(HuffmanFrequencyBuilderTest, Build) {
     delete encoding;
 }
 
+TEST(HuffmanFrequencyBuilderTest, BuildWithOneSymbolOnly) {
+    const uint16_t symbols[] = {0};
+    const uint32_t freqs[] = {1};
+    const size_t n_symbols = sizeof(symbols) / sizeof(symbols[0]);
+    const EncodedSymbol expected_enc[] = {
+        {0, 1, 0}
+    };
+
+    HuffmanFrequencyBuilder builder(8, 16);
+    for(size_t i=0; i<n_symbols; ++i) {
+        builder.SetSymbolFrequency(symbols[i], freqs[i]);
+    }
+
+    HuffmanEncoding *encoding = builder.Build();
+    ASSERT_TRUE(encoding != nullptr);
+
+    for(size_t i=0; i<n_symbols; ++i) {
+        EncodedSymbol *enc = encoding->GetEncodedSymbol(symbols[i]);
+
+        ASSERT_TRUE(enc != nullptr);
+        EXPECT_EQ(enc->symbol, expected_enc[i].symbol);
+        EXPECT_EQ(enc->enc_bit_length, expected_enc[i].enc_bit_length);
+        EXPECT_EQ(enc->enc_value, expected_enc[i].enc_value);
+    }
+
+    delete encoding;
+}
+
 TEST(HuffmanFrequencyBuilderTest, BuildWithNoSymbol) {
     HuffmanFrequencyBuilder builder(8, 8);
     HuffmanEncoding *encoding = builder.Build();
@@ -102,6 +130,8 @@ TEST(HuffmanFrequencyBuilderTest, BuildWithNoSymbol) {
         const EncodedSymbol *enc = encoding->GetEncodedSymbol(i);
         EXPECT_TRUE(enc == nullptr);
     }
+
+    delete encoding;
 }
 
 TEST(HuffmanBitLengthBuilderTest, Build) {
@@ -137,6 +167,34 @@ TEST(HuffmanBitLengthBuilderTest, Build) {
     delete encoding;
 }
 
+TEST(HuffmanBitLengthBuilderTest, BuildWithOneSymbolOnly) {
+    const uint16_t symbols[] = {0};
+    const uint8_t bit_lengths[] = {1};
+    const size_t n_symbols = sizeof(symbols) / sizeof(symbols[0]);
+    const EncodedSymbol expected_enc[] = {
+        {0, 1, 0}
+    };
+
+    HuffmanBitLengthBuilder builder(8, 16);
+    for(size_t i=0; i<n_symbols; ++i) {
+        builder.SetSymbolBitLength(symbols[i], bit_lengths[i]);
+    }
+
+    HuffmanEncoding *encoding = builder.Build();
+    ASSERT_TRUE(encoding != nullptr);
+
+    for(size_t i=0; i<n_symbols; ++i) {
+        EncodedSymbol *enc = encoding->GetEncodedSymbol(symbols[i]);
+
+        ASSERT_TRUE(enc != nullptr);
+        EXPECT_EQ(enc->symbol, expected_enc[i].symbol);
+        EXPECT_EQ(enc->enc_bit_length, expected_enc[i].enc_bit_length);
+        EXPECT_EQ(enc->enc_value, expected_enc[i].enc_value);
+    }
+
+    delete encoding;
+}
+
 TEST(HuffmanBitLengthBuilderTest, BuildWithNoSymbol) {
     HuffmanBitLengthBuilder builder(8, 8);
     HuffmanEncoding *encoding = builder.Build();
@@ -145,5 +203,7 @@ TEST(HuffmanBitLengthBuilderTest, BuildWithNoSymbol) {
         const EncodedSymbol *enc = encoding->GetEncodedSymbol(i);
         EXPECT_TRUE(enc == nullptr);
     }
+
+    delete encoding;
 }
 

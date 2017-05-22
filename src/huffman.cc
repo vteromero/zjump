@@ -142,7 +142,7 @@ static void SetMaxBitLength(const size_t num_symbols,
 
     for(size_t i=num_symbols; i-->0; ) {
         uint32_t inc = 1 << (max_bit_length - enc_symbols[i].enc_bit_length);
-        if(k + inc > max_k) {
+        if(k + inc >= max_k) {
             break;
         }
         k += inc;
