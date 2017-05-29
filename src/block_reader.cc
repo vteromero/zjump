@@ -60,38 +60,19 @@ ZjumpErrorCode BlockReader::ReadBwtMetadata(BitStreamReader& reader) {
 }
 
 ZjumpErrorCode BlockReader::ReadHuffmanTree(BitStreamReader& reader) {
-    uint8_t flags[kBlockMaxEncodingSymbols];
+    HuffmanReader huff_reader(reader, kBlockMaxEncodingSymbols, kBlockMaxEncodingBitLength);
+    int ret_code = huff_reader.Read(&(block_->huff_encoding));
 
-    for(uint16_t i=0; i<kBlockMaxEncodingSymbols; ++i) {
-        if(reader.ReadNext(1, &(flags[i])) != 1) {
+    switch(ret_code) {
+        case HuffmanReader::NO_ERROR:
+            return ZJUMP_NO_ERROR;
+        case HuffmanReader::ERROR_BIT_STREAM:
             return ZJUMP_ERROR_FORMAT_STREAM_TOO_SHORT;
-        }
+        case HuffmanReader::ERROR_HUFFMAN:
+            return ZJUMP_ERROR_HUFFMAN;
+        default:
+            return ZJUMP_ERROR_UNEXPECTED;
     }
-
-    HuffmanBitLengthBuilder builder(kBlockMaxEncodingSymbols, kBlockMaxEncodingBitLength);
-
-    for(uint16_t i=0; i<kBlockMaxEncodingSymbols; ++i) {
-        uint8_t bit_length;
-
-        if(!flags[i]) {
-            continue;
-        }
-
-        uint8_t read = reader.ReadNext(kBlockHuffmanBitLengthFieldSize, &bit_length);
-        if(read != kBlockHuffmanBitLengthFieldSize) {
-            return ZJUMP_ERROR_FORMAT_STREAM_TOO_SHORT;
-        }
-
-        if((bit_length == 0) || (bit_length > kBlockMaxEncodingBitLength)) {
-            return ZJUMP_ERROR_FORMAT_HUFFMAN_BIT_LENGTH;
-        }
-
-        builder.SetSymbolBitLength(i, bit_length);
-    }
-
-    block_->huff_encoding = builder.Build();
-
-    return ZJUMP_NO_ERROR;
 }
 
 ZjumpErrorCode BlockReader::ReadLiterals(BitStreamReader& reader) {
