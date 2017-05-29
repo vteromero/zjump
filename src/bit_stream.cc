@@ -153,6 +153,14 @@ uint8_t BitStreamReader::ReadNext(uint8_t num_bits,
 }
 
 void BitStreamReader::Reset() {
-    next_pos_ = 0;
+    MoveTo(0);
+}
+
+void BitStreamReader::MoveTo(size_t bit_pos) {
+    next_pos_ = bit_pos;
+}
+
+size_t BitStreamReader::NextPos() const {
+    return next_pos_;
 }
 

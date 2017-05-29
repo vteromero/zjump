@@ -279,6 +279,57 @@ TEST(BitStreamReaderTest, ReadNextAndReset) {
     EXPECT_EQ(num_bits, 8);
 }
 
+TEST(BitStreamReaderTest, ReadNextAndMoveTo) {
+    const size_t data_size = 4;
+    uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44};
+    uint8_t result;
+    uint8_t num_bits;
+
+    BitStreamReader reader(data, data_size);
+
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x11);
+    EXPECT_EQ(num_bits, 8);
+
+    reader.MoveTo(16);
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x33);
+    EXPECT_EQ(num_bits, 8);
+
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x44);
+    EXPECT_EQ(num_bits, 8);
+
+    reader.MoveTo(8);
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x22);
+    EXPECT_EQ(num_bits, 8);
+}
+
+TEST(BitStreamReaderTest, NextPos) {
+    const size_t data_size = 4;
+    uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44};
+    uint8_t result;
+    uint8_t num_bits;
+
+    BitStreamReader reader(data, data_size);
+
+    num_bits = reader.Read(8, 0, &result);
+    EXPECT_EQ(result, 0x11);
+    EXPECT_EQ(num_bits, 8);
+    EXPECT_EQ(reader.NextPos(), 0u);
+
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x11);
+    EXPECT_EQ(num_bits, 8);
+    EXPECT_EQ(reader.NextPos(), 8u);
+
+    num_bits = reader.ReadNext(8, &result);
+    EXPECT_EQ(result, 0x22);
+    EXPECT_EQ(num_bits, 8);
+    EXPECT_EQ(reader.NextPos(), 16u);
+}
+
 TEST(BitStreamReaderTest, ReadABigValue) {
     const size_t data_size = 7;
     uint8_t data[data_size] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77};

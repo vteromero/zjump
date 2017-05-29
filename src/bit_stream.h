@@ -69,6 +69,10 @@ public:
 
     void Reset();
 
+    void MoveTo(size_t bit_pos);
+
+    size_t NextPos() const;
+
 private:
     BitStream bit_stream_;
     size_t next_pos_;
