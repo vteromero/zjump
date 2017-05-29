@@ -182,6 +182,8 @@ static void SetEncodedValues(const size_t num_symbols,
     }
 }
 
+// HuffmanEncoding -------------------------------------------------------------
+
 HuffmanEncoding::HuffmanEncoding(const uint16_t max_symbols,
                                  const uint8_t max_bit_length) {
     enc_symbols_ = SecureAlloc<EncodedSymbol>(max_symbols);
@@ -221,6 +223,8 @@ uint16_t HuffmanEncoding::MaxSymbols() const {
 uint8_t HuffmanEncoding::MaxBitLength() const {
     return max_bit_length_;
 }
+
+// HuffmanFrequencyBuilder -----------------------------------------------------
 
 HuffmanFrequencyBuilder::HuffmanFrequencyBuilder(const uint16_t max_symbols,
                                                  const uint8_t max_bit_length) {
@@ -296,6 +300,8 @@ HuffmanEncoding* HuffmanFrequencyBuilder::Build() {
     return encoding;
 }
 
+// HuffmanBitLengthBuilder -----------------------------------------------------
+
 HuffmanBitLengthBuilder::HuffmanBitLengthBuilder(const uint16_t max_symbols,
                                                  const uint8_t max_bit_length) {
     bit_lengths_ = SecureAlloc<uint8_t>(max_symbols);
@@ -353,5 +359,315 @@ HuffmanEncoding* HuffmanBitLengthBuilder::Build() {
     SecureFree<uint8_t>(lengths);
 
     return encoding;
+}
+
+// HuffmanWriter ---------------------------------------------------------------
+
+HuffmanWriter::HuffmanWriter(const HuffmanEncoding& huff_tree) :
+    huff_tree_(huff_tree) {
+    writer_ = nullptr;
+    encoding_type_ = 0;
+    range_size_ = huff_tree.MaxSymbols();
+    range_flags_ = SecureAlloc<uint8_t>(huff_tree.MaxSymbols());
+    range_flags_size_ = 0;
+}
+
+HuffmanWriter::~HuffmanWriter() {
+    SecureFree<uint8_t>(range_flags_);
+}
+
+bool HuffmanWriter::Write(BitStreamWriter* writer) {
+    assert(writer != nullptr);
+
+    writer_ = writer;
+    range_flags_size_ = 0;
+
+    encoding_type_ = EncodingType();
+
+    return WriteEncodingType() &&
+           WriteFlags() &&
+           WriteSymbolBitLengths();
+}
+
+uint8_t HuffmanWriter::EncodingType() {
+    const size_t symbols = huff_tree_.MaxSymbols();
+    size_t sum[symbols + 1] = {0};
+
+    for(size_t i=0; i<symbols; ++i) {
+        sum[i + 1] = sum[i] + (huff_tree_.GetEncodedSymbol(i) != nullptr);
+    }
+
+    size_t enc_type = 0;
+    size_t enc_len = symbols;
+
+    size_t enc_len_1 = EncodingLength(symbols, 8, sum);
+    if(enc_len_1 < enc_len) {
+        enc_type = 1;
+        enc_len = enc_len_1;
+    }
+
+    size_t enc_len_2 = EncodingLength(symbols, 16, sum);
+    if(enc_len_2 < enc_len) {
+        enc_type = 2;
+        enc_len = enc_len_2;
+    }
+
+    size_t enc_len_3 = EncodingLength(symbols, 32, sum);
+    if(enc_len_3 < enc_len) {
+        enc_type = 3;
+        enc_len = enc_len_3;
+    }
+
+    return enc_type;
+}
+
+size_t HuffmanWriter::EncodingLength(size_t num_symbols,
+                                     size_t range_size,
+                                     size_t* sum_symbols) {
+    size_t enc_len = (num_symbols / range_size) + ((num_symbols % range_size) > 0);
+
+    for(size_t i=0; i<=num_symbols; i+=range_size) {
+        size_t remaining = (i + range_size > num_symbols) ? (num_symbols - i) : range_size;
+        size_t symbols_in_range = sum_symbols[i + remaining] - sum_symbols[i];
+        enc_len += remaining * (symbols_in_range > 0);
+    }
+
+    return enc_len;
+}
+
+bool HuffmanWriter::WriteEncodingType() {
+    if(writer_->Append(encoding_type_, 2) == 2) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool HuffmanWriter::WriteFlags() {
+    switch(encoding_type_) {
+        case 0:
+            return WriteSymbolFlags(0, huff_tree_.MaxSymbols());
+        case 1:
+            range_size_ = 8;
+            return WriteRangeFlags() &&
+                   WriteSymbolFlags();
+        case 2:
+            range_size_ = 16;
+            return WriteRangeFlags() &&
+                   WriteSymbolFlags();
+        case 3:
+            range_size_ = 32;
+            return WriteRangeFlags() &&
+                   WriteSymbolFlags();
+    }
+
+    return false;
+}
+
+bool HuffmanWriter::WriteRangeFlags() {
+    const size_t n_symbols = huff_tree_.MaxSymbols();
+
+    for(size_t i=0; i<n_symbols; ) {
+        uint8_t flag = 0;
+
+        for(size_t j=0; (i<n_symbols && j<range_size_); ++j, ++i) {
+            flag = flag | static_cast<uint8_t>(huff_tree_.GetEncodedSymbol(i) != nullptr);
+        }
+
+        if(writer_->Append(flag, 1) != 1) {
+            return false;
+        }
+
+        range_flags_[range_flags_size_++] = flag;
+    }
+
+    return true;
+}
+
+bool HuffmanWriter::WriteSymbolFlags() {
+    for(size_t i=0; i<range_flags_size_; ++i) {
+        if(range_flags_[i]) {
+            if(!WriteSymbolFlags(i * range_size_, range_size_)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool HuffmanWriter::WriteSymbolFlags(size_t start,
+                                     size_t length) {
+    size_t end = start + length;
+    if(end > huff_tree_.MaxSymbols()) {
+        end = huff_tree_.MaxSymbols();
+    }
+
+    for(size_t s=start; s<end; ++s) {
+        uint8_t flag = static_cast<uint8_t>(huff_tree_.GetEncodedSymbol(s) != nullptr);
+        if(writer_->Append(flag, 1) != 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool HuffmanWriter::WriteSymbolBitLengths() {
+    const size_t n_symbols = huff_tree_.MaxSymbols();
+
+    // calculate the minimum size to encode a symbol bit length
+    size_t max_bit_length = huff_tree_.MaxBitLength();
+    size_t bit_length_field_size = 0;
+    while(max_bit_length) {
+        ++bit_length_field_size;
+        max_bit_length >>= 1;
+    }
+
+    for(size_t s=0; s<n_symbols; ++s) {
+        const EncodedSymbol *enc = huff_tree_.GetEncodedSymbol(s);
+        if(enc != nullptr) {
+            uint8_t written = writer_->Append(enc->enc_bit_length, bit_length_field_size);
+            if(written != bit_length_field_size) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// HuffmanReader ---------------------------------------------------------------
+
+constexpr int HuffmanReader::NO_ERROR;
+constexpr int HuffmanReader::ERROR_BIT_STREAM;
+constexpr int HuffmanReader::ERROR_HUFFMAN;
+
+HuffmanReader::HuffmanReader(BitStreamReader& reader,
+                             const uint16_t max_symbols,
+                             const uint8_t max_bit_length) :
+    reader_(reader), max_symbols_(max_symbols), max_bit_length_(max_bit_length) {
+    assert(max_symbols > 0);
+    assert(max_bit_length > 0);
+    encoding_type_ = 0;
+    symbols_ = SecureAlloc<uint16_t>(max_symbols);
+    bit_lengths_ = SecureAlloc<uint8_t>(max_symbols);
+    num_symbols_ = 0;
+}
+
+HuffmanReader::~HuffmanReader() {
+    SecureFree<uint16_t>(symbols_);
+    SecureFree<uint8_t>(bit_lengths_);
+}
+
+int HuffmanReader::Read(HuffmanEncoding** huff_tree) {
+    num_symbols_ = 0;
+
+    if(!ReadEncodingType()) {
+        return ERROR_BIT_STREAM;
+    }
+
+    if(!ReadFlags()) {
+        return ERROR_BIT_STREAM;
+    }
+
+    if(!ReadSymbolBitLengths()) {
+        return ERROR_BIT_STREAM;
+    }
+
+    HuffmanBitLengthBuilder builder(max_symbols_, max_bit_length_);
+
+    for(size_t i=0; i<num_symbols_; ++i) {
+        builder.SetSymbolBitLength(symbols_[i], bit_lengths_[i]);
+    }
+
+    *huff_tree = builder.Build();
+    if(*huff_tree == nullptr) {
+        return ERROR_HUFFMAN;
+    }
+
+    return NO_ERROR;
+}
+
+bool HuffmanReader::ReadEncodingType() {
+    return (reader_.ReadNext(2, &encoding_type_) == 2);
+}
+
+bool HuffmanReader::ReadFlags() {
+    switch(encoding_type_) {
+        case 0:
+            return ReadSymbolFlags(0, max_symbols_);
+        case 1:
+            return ReadRangeFlags(8);
+        case 2:
+            return ReadRangeFlags(16);
+        case 3:
+            return ReadRangeFlags(32);
+    }
+
+    return false;
+}
+
+bool HuffmanReader::ReadRangeFlags(size_t range_size) {
+    const size_t num_range_flags = (max_symbols_ / range_size) + ((max_symbols_ % range_size) > 0);
+    size_t range_flags_pos = reader_.NextPos();
+
+    // move the next-position-to-read to the position from where symbol flags
+    // are going to be read.
+    reader_.MoveTo(range_flags_pos + num_range_flags);
+
+    for(size_t i=0, j=0; i<num_range_flags; ++i, j+=range_size) {
+        uint8_t flag = 0;
+        if(reader_.Read(1, range_flags_pos, &flag) != 1) {
+            return false;
+        }
+
+        if((flag == 1) && (!ReadSymbolFlags(j, range_size))) {
+            return false;
+        }
+
+        ++range_flags_pos;
+    }
+
+    return true;
+}
+
+bool HuffmanReader::ReadSymbolFlags(size_t start,
+                                    size_t length) {
+    size_t end = start + length;
+    if(end > max_symbols_) {
+        end = max_symbols_;
+    }
+
+    for(size_t s=start; s<end; ++s) {
+        uint8_t flag;
+
+        if(reader_.ReadNext(1, &flag) != 1) {
+            return false;
+        }
+
+        if(flag == 1) {
+            symbols_[num_symbols_++] = s;
+        }
+    }
+
+    return true;
+}
+
+bool HuffmanReader::ReadSymbolBitLengths() {
+    size_t bit_length_field_size = 0;
+    size_t x = max_bit_length_;
+    while(x) {
+        ++bit_length_field_size;
+        x >>= 1;
+    }
+
+    for(size_t i=0; i<num_symbols_; ++i) {
+        if(reader_.ReadNext(bit_length_field_size, &bit_lengths_[i]) != bit_length_field_size) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
