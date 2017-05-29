@@ -391,7 +391,9 @@ bool HuffmanWriter::Write(BitStreamWriter* writer) {
 
 uint8_t HuffmanWriter::EncodingType() {
     const size_t symbols = huff_tree_.MaxSymbols();
-    size_t sum[symbols + 1] = {0};
+    size_t sum[symbols + 1];
+
+    sum[0] = 0;
 
     for(size_t i=0; i<symbols; ++i) {
         sum[i + 1] = sum[i] + (huff_tree_.GetEncodedSymbol(i) != nullptr);
