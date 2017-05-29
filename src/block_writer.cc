@@ -71,31 +71,12 @@ ZjumpErrorCode BlockWriter::WriteBwtMetadata(BitStreamWriter* writer) {
 }
 
 ZjumpErrorCode BlockWriter::WriteHuffmanTree(BitStreamWriter* writer) {
-    const HuffmanEncoding *encoding = block_.huff_encoding;
-
-    for(uint16_t s=0; s<kBlockMaxEncodingSymbols; ++s) {
-        if(encoding->GetEncodedSymbol(s) == nullptr) {
-            if(writer->Append(0, 1) != 1) {
-                return ZJUMP_ERROR_BIT_WRITER;
-            }
-        } else {
-            if(writer->Append(1, 1) != 1) {
-                return ZJUMP_ERROR_BIT_WRITER;
-            }
-        }
+    HuffmanWriter huff_writer(*block_.huff_encoding);
+    if(huff_writer.Write(writer)) {
+        return ZJUMP_NO_ERROR;
+    } else {
+        return ZJUMP_ERROR_BIT_WRITER;
     }
-
-    for(uint16_t s=0; s<kBlockMaxEncodingSymbols; ++s) {
-        const EncodedSymbol *enc = encoding->GetEncodedSymbol(s);
-        if(enc != nullptr) {
-            uint8_t written = writer->Append(enc->enc_bit_length, kBlockHuffmanBitLengthFieldSize);
-            if(written != kBlockHuffmanBitLengthFieldSize) {
-                return ZJUMP_ERROR_BIT_WRITER;
-            }
-        }
-    }
-
-    return ZJUMP_NO_ERROR;
 }
 
 ZjumpErrorCode BlockWriter::WriteLiterals(BitStreamWriter* writer) {
