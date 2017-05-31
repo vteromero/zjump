@@ -21,6 +21,7 @@ struct ExecConfig {
     bool force_opt;
     bool keep_opt;
     bool version_opt;
+    bool license_opt;
     string in_file_name;
     string out_file_name;
     FILE *in_file;
@@ -33,6 +34,7 @@ struct ExecConfig {
         force_opt       = false;
         keep_opt        = false;
         version_opt     = false;
+        license_opt     = false;
         in_file         = stdin;
         out_file        = stdout;
     }
@@ -58,18 +60,27 @@ static void DisplayVersionNumber() {
     fprintf(stderr, "zjump %u.%u.%u\n", major, minor, patch);
 }
 
+static void DisplayLicense() {
+    fprintf(stderr,
+"Copyright (c) 2017 Vicente Romero. All rights reserved.\n"
+"Licensed under the MIT License. See LICENSE file, which is included in the\n"
+"zjump source distribution, for full license information.\n"
+    );
+}
+
 static void Usage(const char *name)
 {
     fprintf(stderr,
-"zjump, a file compressor/decompressor\n"
+"zjump, a data compressor/decompressor\n"
 "\n"
 "Usage: %s [OPTIONS] [FILE]\n"
 "\n"
 "  -c, --stdout         Write on standard output\n"
 "  -d, --decompress     Decompress FILE\n"
 "  -f, --force          Force to overwrite the output file\n"
-"  -k, --keep           Keep the input file (do not delete it)\n"
 "  -h, --help           Output this help and exit\n"
+"  -k, --keep           Keep the input file (do not delete it)\n"
+"  -L, --license        Display software license\n"
 "  -V, --version        Display version number\n"
 "\n"
 "If no FILE is given, zjump compresses or decompresses\n"
@@ -105,10 +116,12 @@ static int ParseOptions(int argc, char **argv, ExecConfig* config) {
             config->decompress_opt = true;
         } else if((strcmp(argv[i], "-f") == 0) || (strcmp(argv[i], "--force") == 0)) {
             config->force_opt = true;
-        } else if((strcmp(argv[i], "-k") == 0) || (strcmp(argv[i], "--keep") == 0)) {
-            config->keep_opt = true;
         } else if((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
             config->help_opt = true;
+        } else if((strcmp(argv[i], "-k") == 0) || (strcmp(argv[i], "--keep") == 0)) {
+            config->keep_opt = true;
+        } else if((strcmp(argv[i], "-L") == 0) || (strcmp(argv[i], "--license") == 0)) {
+            config->license_opt = true;
         } else if((strcmp(argv[i], "-V") == 0) || (strcmp(argv[i], "--version") == 0)) {
             config->version_opt = true;
         } else if(argv[i][0] == '-') {
@@ -221,8 +234,9 @@ int main(int argc, char **argv) {
         return ret_code;
     }
 
-    if(config.version_opt) {
+    if(config.version_opt || config.license_opt) {
         DisplayVersionNumber();
+        DisplayLicense();
         return ZJUMP_NO_ERROR;
     }
 
